@@ -35,14 +35,13 @@
 #ifndef CLASS_LOADER__META_OBJECT_HPP_
 #define CLASS_LOADER__META_OBJECT_HPP_
 
-#include <console_bridge/console.h>
-#include "class_loader/visibility_control.hpp"
+#include "cnr_class_loader/visibility_control.hpp"
 
 #include <typeinfo>
 #include <string>
 #include <vector>
 
-namespace class_loader
+namespace cnr_class_loader
 {
 
 class ClassLoader;  // Forward declaration
@@ -50,7 +49,7 @@ class ClassLoader;  // Forward declaration
 namespace impl
 {
 
-typedef std::vector<class_loader::ClassLoader *> ClassLoaderVector;
+typedef std::vector<cnr_class_loader::ClassLoader *> ClassLoaderVector;
 
 /**
  * @class AbstractMetaObjectBase
@@ -200,6 +199,6 @@ public:
 };
 
 }  // namespace impl
-}  // namespace class_loader
+}  // namespace cnr_class_loader
 
 #endif  // CLASS_LOADER__META_OBJECT_HPP_

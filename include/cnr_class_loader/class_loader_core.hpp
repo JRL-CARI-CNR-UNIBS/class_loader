@@ -35,16 +35,22 @@
 #include <boost/thread/recursive_mutex.hpp>
 #include <cstddef>
 #include <cstdio>
+#include <iostream>
 #include <map>
 #include <string>
 #include <typeinfo>
 #include <utility>
 #include <vector>
 
-#include "class_loader/exceptions.hpp"
-#include "class_loader/meta_object.hpp"
-#include "class_loader/visibility_control.hpp"
+#include "cnr_class_loader/exceptions.hpp"
+#include "cnr_class_loader/meta_object.hpp"
+#include "cnr_class_loader/visibility_control.hpp"
 
+
+#define CONSOLE_BRIDGE_logDebug(...)
+#define CONSOLE_BRIDGE_logWarn(...) printf("warning qui da sistemare");
+#define CONSOLE_BRIDGE_logError printf("errore qui da sistemare");
+#define CONSOLE_BRIDGE_logInform printf("errore qui da sistemare");
 // forward declaration
 namespace Poco
 {
@@ -55,7 +61,7 @@ namespace Poco
  * @note This header file is the internal implementation of the plugin system which is exposed via the ClassLoader class
  */
 
-namespace class_loader
+namespace cnr_class_loader
 {
 
 class ClassLoader;  // Forward declaration
@@ -222,7 +228,7 @@ void registerPlugin(const std::string & class_name, const std::string & base_cla
       "This situation occurs when libraries containing plugins are directly linked against an "
       "executable (the one running right now generating this message). "
       "Please separate plugins out into their own library or just don't link against the library "
-      "and use either class_loader::ClassLoader/MultiLibraryClassLoader to open.",
+      "and use either cnr_class_loader::ClassLoader/MultiLibraryClassLoader to open.",
       class_name.c_str());
   }
   factoryMap[class_name] = new_factory;
@@ -275,7 +281,7 @@ Base * createInstance(const std::string & derived_class_name, ClassLoader * load
 
       obj = factory->create();
     } else {
-      throw class_loader::CreateClassException(
+      throw cnr_class_loader::CreateClassException(
               "Could not create instance of type " + derived_class_name);
     }
   }
@@ -358,6 +364,6 @@ CLASS_LOADER_PUBLIC
 void unloadLibrary(const std::string & library_path, ClassLoader * loader);
 
 }  // namespace impl
-}  // namespace class_loader
+}  // namespace cnr_class_loader
 
 #endif  // CLASS_LOADER__CLASS_LOADER_CORE_HPP_

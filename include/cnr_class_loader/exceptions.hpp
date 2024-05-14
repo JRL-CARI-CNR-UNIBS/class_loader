@@ -35,7 +35,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace class_loader
+namespace cnr_class_loader
 {
 
 /**
@@ -98,5 +98,5 @@ public:
   {}
 };
 
-}  // namespace class_loader
+}  // namespace cnr_class_loader
 #endif  // CLASS_LOADER__EXCEPTIONS_HPP_

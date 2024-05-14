@@ -27,13 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "class_loader/multi_library_class_loader.hpp"
+#include "cnr_class_loader/multi_library_class_loader.hpp"
 
 #include <cstddef>
 #include <string>
 #include <vector>
 
-namespace class_loader
+namespace cnr_class_loader
 {
 
 MultiLibraryClassLoader::MultiLibraryClassLoader(bool enable_ondemand_loadunload)
@@ -81,9 +81,11 @@ bool MultiLibraryClassLoader::isLibraryAvailable(const std::string & library_nam
 
 void MultiLibraryClassLoader::loadLibrary(const std::string & library_path)
 {
+
+
   if (!isLibraryAvailable(library_path)) {
     active_class_loaders_[library_path] =
-      new class_loader::ClassLoader(library_path, isOnDemandLoadUnloadEnabled());
+      new cnr_class_loader::ClassLoader(library_path, isOnDemandLoadUnloadEnabled());
   }
 }
 
@@ -110,4 +112,4 @@ int MultiLibraryClassLoader::unloadLibrary(const std::string & library_path)
   return remaining_unloads;
 }
 
-}  // namespace class_loader
+}  // namespace cnr_class_loader

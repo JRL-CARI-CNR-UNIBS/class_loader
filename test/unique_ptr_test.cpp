@@ -43,38 +43,38 @@
 
 #include "./base.hpp"
 
-const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
-const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
+const std::string LIBRARY_1 = cnr_class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
+const std::string LIBRARY_2 = cnr_class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
 
-using class_loader::ClassLoader;
+using cnr_class_loader::ClassLoader;
 
 TEST(ClassLoaderUniquePtrTest, basicLoad) {
   try {
     ClassLoader loader1(LIBRARY_1, false);
     loader1.createUniqueInstance<Base>("Cat")->saySomething();  // See if lazy load works
     SUCCEED();
-  } catch (class_loader::ClassLoaderException & e) {
+  } catch (cnr_class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 }
 
 TEST(ClassLoaderUniquePtrTest, correctLazyLoadUnload) {
   try {
-    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(cnr_class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     ClassLoader loader1(LIBRARY_1, true);
-    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(cnr_class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
     {
       ClassLoader::UniquePtr<Base> obj = loader1.createUniqueInstance<Base>("Cat");
-      ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+      ASSERT_TRUE(cnr_class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
       ASSERT_TRUE(loader1.isLibraryLoaded());
     }
 
     // The library will unload automatically when the only plugin object left is destroyed
-    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(cnr_class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     return;
-  } catch (class_loader::ClassLoaderException & e) {
+  } catch (cnr_class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   } catch (...) {
     FAIL() << "Unhandled exception";
@@ -91,7 +91,7 @@ TEST(ClassLoaderUniquePtrTest, nonExistentPlugin) {
     }
 
     obj->saySomething();
-  } catch (const class_loader::CreateClassException &) {
+  } catch (const cnr_class_loader::CreateClassException &) {
     SUCCEED();
     return;
   } catch (...) {
@@ -134,7 +134,7 @@ TEST(ClassLoaderUniquePtrTest, threadSafety) {
 
     loader1.unloadLibrary();
     ASSERT_FALSE(loader1.isLibraryLoaded());
-  } catch (const class_loader::ClassLoaderException &) {
+  } catch (const cnr_class_loader::ClassLoaderException &) {
     FAIL() << "Unexpected ClassLoaderException.";
   } catch (...) {
     FAIL() << "Unknown exception.";
@@ -172,7 +172,7 @@ TEST(ClassLoaderUniquePtrTest, loadRefCountingLazy) {
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
     return;
-  } catch (const class_loader::ClassLoaderException &) {
+  } catch (const cnr_class_loader::ClassLoaderException &) {
     FAIL() << "Unexpected exception.\n";
   } catch (...) {
     FAIL() << "Unknown exception caught.\n";
@@ -184,7 +184,7 @@ TEST(ClassLoaderUniquePtrTest, loadRefCountingLazy) {
 void testMultiClassLoader(bool lazy)
 {
   try {
-    class_loader::MultiLibraryClassLoader loader(lazy);
+    cnr_class_loader::MultiLibraryClassLoader loader(lazy);
     loader.loadLibrary(LIBRARY_1);
     loader.loadLibrary(LIBRARY_2);
     for (int i = 0; i < 2; ++i) {
@@ -192,7 +192,7 @@ void testMultiClassLoader(bool lazy)
       loader.createUniqueInstance<Base>("Dog")->saySomething();
       loader.createUniqueInstance<Base>("Robot")->saySomething();
     }
-  } catch (class_loader::ClassLoaderException & e) {
+  } catch (cnr_class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 
@@ -212,7 +212,7 @@ TEST(MultiClassLoaderUniquePtrTest, noWarningOnLazyLoad) {
   try {
     ClassLoader::UniquePtr<Base> cat = nullptr, dog = nullptr, rob = nullptr;
     {
-      class_loader::MultiLibraryClassLoader loader(true);
+      cnr_class_loader::MultiLibraryClassLoader loader(true);
       loader.loadLibrary(LIBRARY_1);
       loader.loadLibrary(LIBRARY_2);
 
@@ -223,7 +223,7 @@ TEST(MultiClassLoaderUniquePtrTest, noWarningOnLazyLoad) {
     cat->saySomething();
     dog->saySomething();
     rob->saySomething();
-  } catch (class_loader::ClassLoaderException & e) {
+  } catch (cnr_class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 

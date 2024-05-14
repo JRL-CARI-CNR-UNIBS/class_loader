@@ -27,8 +27,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "class_loader/class_loader_core.hpp"
-#include "class_loader/class_loader.hpp"
+#include "cnr_class_loader/class_loader_core.hpp"
+#include "cnr_class_loader/class_loader.hpp"
 
 #include <boost/filesystem.hpp>
 
@@ -39,7 +39,7 @@
 #include <string>
 #include <vector>
 
-namespace class_loader
+namespace cnr_class_loader
 {
 namespace impl
 {
@@ -446,43 +446,72 @@ void loadLibrary(const std::string & library_path, ClassLoader * loader)
     return;
   }
 
+  // get absolute library path
+  std::string ld_library_path = std::getenv("LD_LIBRARY_PATH");
+  std::vector<std::string> library_prefixes;
+  std::string delimiter = ":";
+
+  size_t pos = 0;
+  std::string lib_path;
+  while ((pos = ld_library_path.find(delimiter)) != std::string::npos)
+  {
+      lib_path = ld_library_path.substr(0, pos);
+      library_prefixes.push_back(lib_path);
+      ld_library_path.erase(0, pos + delimiter.length());
+  }
+  library_prefixes.push_back(ld_library_path);
+
+  library_prefixes.push_back("/usr/lib");
+  library_prefixes.push_back("/usr/local/lib");
+
+
   Poco::SharedLibrary * library_handle = nullptr;
 
+  bool found=false;
+
+  std::string error_message;
+  for (const std::string& lp: library_prefixes)
   {
+    std::string abs_path=lp+"/"+library_path;
+
     try {
       setCurrentlyActiveClassLoader(loader);
-      setCurrentlyLoadingLibraryName(library_path);
+      setCurrentlyLoadingLibraryName(abs_path);
 
       // Try to resolve symlinks in the library path, placed here just before load such that all current caching
       // logic etc still works, the actual poco object's path doesn't seem to be used anywhere.
       boost::system::error_code error_code;
-      const auto absolute_library_path = boost::filesystem::canonical(library_path, error_code);
-
-      auto library_path_to_load = library_path;
+      const auto absolute_library_path = boost::filesystem::canonical(abs_path, error_code);
+      auto library_path_to_load = abs_path;
       if (error_code.value() == boost::system::errc::success) {
           library_path_to_load = absolute_library_path.string();
       }
 
       library_handle = new Poco::SharedLibrary(library_path_to_load);
+      found=true;
+      break;
     } catch (const Poco::LibraryLoadException & e) {
       setCurrentlyLoadingLibraryName("");
       setCurrentlyActiveClassLoader(nullptr);
-      throw class_loader::LibraryLoadException(
-              "Could not load library (Poco exception = " + std::string(e.message()) + ")");
+      error_message+="Could not load library "+abs_path+ " (Poco exception =  " + std::string(e.message()) + ")\n";
     } catch (const Poco::LibraryAlreadyLoadedException & e) {
       setCurrentlyLoadingLibraryName("");
       setCurrentlyActiveClassLoader(nullptr);
-      throw class_loader::LibraryLoadException(
-              "Library already loaded (Poco exception = " + std::string(e.message()) + ")");
+      error_message+="Library already loaded "+abs_path+ " (Poco exception =  " + std::string(e.message()) + ")\n";
     } catch (const Poco::NotFoundException & e) {
       setCurrentlyLoadingLibraryName("");
       setCurrentlyActiveClassLoader(nullptr);
-      throw class_loader::LibraryLoadException(
-              "Library not found (Poco exception = " + std::string(e.message()) + ")");
+      error_message+="Library not found "+abs_path+ " (Poco exception =  " + std::string(e.message()) + ")\n";
     }
+
 
     setCurrentlyLoadingLibraryName("");
     setCurrentlyActiveClassLoader(nullptr);
+  }
+
+  if (!found)
+  {
+    throw cnr_class_loader::LibraryLoadException(error_message);
   }
 
   assert(library_handle != nullptr);
@@ -565,11 +594,11 @@ void unloadLibrary(const std::string & library_path, ClassLoader * loader)
         return;
       } catch (const Poco::RuntimeException & e) {
         delete (library);
-        throw class_loader::LibraryUnloadException(
+        throw cnr_class_loader::LibraryUnloadException(
                 "Caught a poco exception while unloading library " + library_path + ": " + e.message());
       }
     }
-    throw class_loader::LibraryUnloadException(
+    throw cnr_class_loader::LibraryUnloadException(
             "Attempt to unload library that class_loader is unaware of: " + library_path);
   }
 }
@@ -617,4 +646,4 @@ void printDebugInfoToScreen()
 
 
 }  // namespace impl
-}  // namespace class_loader
+}  // namespace cnr_class_loader

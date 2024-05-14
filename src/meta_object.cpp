@@ -29,10 +29,10 @@
 
 #include <string>
 
-#include "class_loader/meta_object.hpp"
-#include "class_loader/class_loader.hpp"
+#include "cnr_class_loader/meta_object.hpp"
+#include "cnr_class_loader/class_loader.hpp"
 
-namespace class_loader
+namespace cnr_class_loader
 {
 namespace impl
 {
@@ -118,4 +118,4 @@ ClassLoaderVector AbstractMetaObjectBase::getAssociatedClassLoaders()
 }
 
 }  // namespace impl
-}  // namespace class_loader
+}  // namespace cnr_class_loader

@@ -29,7 +29,7 @@
 
 #include <iostream>
 
-#include "class_loader/class_loader.hpp"
+#include "cnr_class_loader/class_loader.hpp"
 
 #include "./base.hpp"
 

@@ -38,15 +38,14 @@
 #include <string>
 #include <vector>
 
-#include "console_bridge/console.h"
-#include "class_loader/class_loader.hpp"
-#include "class_loader/visibility_control.hpp"
+#include "cnr_class_loader/class_loader.hpp"
+#include "cnr_class_loader/visibility_control.hpp"
 
-namespace class_loader
+namespace cnr_class_loader
 {
 
 typedef std::string LibraryPath;
-typedef std::map<LibraryPath, class_loader::ClassLoader *> LibraryToClassLoaderMap;
+typedef std::map<LibraryPath, cnr_class_loader::ClassLoader *> LibraryToClassLoaderMap;
 typedef std::vector<ClassLoader *> ClassLoaderVector;
 
 /**
@@ -78,12 +77,12 @@ public:
   std::shared_ptr<Base> createSharedInstance(const std::string & class_name)
   {
     CONSOLE_BRIDGE_logDebug(
-      "class_loader::MultiLibraryClassLoader: "
+      "cnr_class_loader::MultiLibraryClassLoader: "
       "Attempting to create instance of class type %s.",
       class_name.c_str());
     ClassLoader * loader = getClassLoaderForClass<Base>(class_name);
     if (nullptr == loader) {
-      throw class_loader::CreateClassException(
+      throw cnr_class_loader::CreateClassException(
               "MultiLibraryClassLoader: Could not create object of class type " +
               class_name +
               " as no factory exists for it. Make sure that the library exists and "
@@ -107,7 +106,7 @@ public:
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
     if (nullptr == loader) {
-      throw class_loader::NoClassLoaderExistsException(
+      throw cnr_class_loader::NoClassLoaderExistsException(
               "Could not create instance as there is no ClassLoader in "
               "MultiLibraryClassLoader bound to library " + library_path +
               " Ensure you called MultiLibraryClassLoader::loadLibrary()");
@@ -117,18 +116,18 @@ public:
 
   /**
    * @brief Creates an instance of an object of given class name with ancestor class Base
-   * Same as createSharedInstance() except it returns a boost::shared_ptr.
+   * Same as createSharedInstance() except it returns a std::shared_ptr.
    */
   template<class Base>
-  boost::shared_ptr<Base> createInstance(const std::string & class_name)
+  std::shared_ptr<Base> createInstance(const std::string & class_name)
   {
     CONSOLE_BRIDGE_logDebug(
-      "class_loader::MultiLibraryClassLoader: "
+      "cnr_class_loader::MultiLibraryClassLoader: "
       "Attempting to create instance of class type %s.",
       class_name.c_str());
     ClassLoader * loader = getClassLoaderForClass<Base>(class_name);
     if (nullptr == loader) {
-      throw class_loader::CreateClassException(
+      throw cnr_class_loader::CreateClassException(
               "MultiLibraryClassLoader: Could not create object of class type " +
               class_name +
               " as no factory exists for it. Make sure that the library exists and "
@@ -140,15 +139,15 @@ public:
 
   /**
    * @brief Creates an instance of an object of given class name with ancestor class Base
-   * Same as createSharedInstance() except it returns a boost::shared_ptr.
+   * Same as createSharedInstance() except it returns a std::shared_ptr.
    */
   template<class Base>
-  boost::shared_ptr<Base>
+  std::shared_ptr<Base>
   createInstance(const std::string & class_name, const std::string & library_path)
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
     if (nullptr == loader) {
-      throw class_loader::NoClassLoaderExistsException(
+      throw cnr_class_loader::NoClassLoaderExistsException(
               "Could not create instance as there is no ClassLoader in "
               "MultiLibraryClassLoader bound to library " + library_path +
               " Ensure you called MultiLibraryClassLoader::loadLibrary()");
@@ -164,11 +163,11 @@ public:
   ClassLoader::UniquePtr<Base> createUniqueInstance(const std::string & class_name)
   {
     CONSOLE_BRIDGE_logDebug(
-      "class_loader::MultiLibraryClassLoader: Attempting to create instance of class type %s.",
+      "cnr_class_loader::MultiLibraryClassLoader: Attempting to create instance of class type %s.",
       class_name.c_str());
     ClassLoader * loader = getClassLoaderForClass<Base>(class_name);
     if (nullptr == loader) {
-      throw class_loader::CreateClassException(
+      throw cnr_class_loader::CreateClassException(
               "MultiLibraryClassLoader: Could not create object of class type " + class_name +
               " as no factory exists for it. "
               "Make sure that the library exists and was explicitly loaded through "
@@ -187,7 +186,7 @@ public:
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
     if (nullptr == loader) {
-      throw class_loader::NoClassLoaderExistsException(
+      throw cnr_class_loader::NoClassLoaderExistsException(
               "Could not create instance as there is no ClassLoader in "
               "MultiLibraryClassLoader bound to library " + library_path +
               " Ensure you called MultiLibraryClassLoader::loadLibrary()");
@@ -208,7 +207,7 @@ public:
   {
     ClassLoader * loader = getClassLoaderForClass<Base>(class_name);
     if (nullptr == loader) {
-      throw class_loader::CreateClassException(
+      throw cnr_class_loader::CreateClassException(
               "MultiLibraryClassLoader: Could not create class of type " + class_name);
     }
     return loader->createUnmanagedInstance<Base>(class_name);
@@ -227,7 +226,7 @@ public:
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
     if (nullptr == loader) {
-      throw class_loader::NoClassLoaderExistsException(
+      throw cnr_class_loader::NoClassLoaderExistsException(
               "Could not create instance as there is no ClassLoader in MultiLibraryClassLoader "
               "bound to library " + library_path +
               " Ensure you called MultiLibraryClassLoader::loadLibrary()");
@@ -283,7 +282,7 @@ public:
   {
     ClassLoader * loader = getClassLoaderForLibrary(library_path);
     if (nullptr == loader) {
-      throw class_loader::NoClassLoaderExistsException(
+      throw cnr_class_loader::NoClassLoaderExistsException(
               "There is no ClassLoader in MultiLibraryClassLoader bound to library " +
               library_path +
               " Ensure you called MultiLibraryClassLoader::loadLibrary()");
@@ -359,5 +358,5 @@ private:
 };
 
 
-}  // namespace class_loader
+}  // namespace cnr_class_loader
 #endif  // CLASS_LOADER__MULTI_LIBRARY_CLASS_LOADER_HPP_

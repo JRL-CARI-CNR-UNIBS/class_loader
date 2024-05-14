@@ -35,21 +35,21 @@
 #include <thread>
 #include <vector>
 
-#include "class_loader/class_loader.hpp"
-#include "class_loader/multi_library_class_loader.hpp"
+#include "cnr_class_loader/class_loader.hpp"
+#include "cnr_class_loader/multi_library_class_loader.hpp"
 
 #include "gtest/gtest.h"
 
 #include "./base.hpp"
 
-const std::string LIBRARY_1 = class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
-const std::string LIBRARY_2 = class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
+const std::string LIBRARY_1 = cnr_class_loader::systemLibraryFormat("class_loader_TestPlugins1");  // NOLINT
+const std::string LIBRARY_2 = cnr_class_loader::systemLibraryFormat("class_loader_TestPlugins2");  // NOLINT
 
 TEST(ClassLoaderSharedPtrTest, basicLoad) {
   try {
-    class_loader::ClassLoader loader1(LIBRARY_1, false);
+    cnr_class_loader::ClassLoader loader1(LIBRARY_1, false);
     loader1.createSharedInstance<Base>("Cat")->saySomething();  // See if lazy load works
-  } catch (class_loader::ClassLoaderException & e) {
+  } catch (cnr_class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 
@@ -58,15 +58,15 @@ TEST(ClassLoaderSharedPtrTest, basicLoad) {
 
 TEST(ClassLoaderSharedPtrTest, correctNonLazyLoadUnload) {
   try {
-    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
-    class_loader::ClassLoader loader1(LIBRARY_1, false);
-    ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(cnr_class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+    cnr_class_loader::ClassLoader loader1(LIBRARY_1, false);
+    ASSERT_TRUE(cnr_class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_TRUE(loader1.isLibraryLoaded());
     loader1.unloadLibrary();
-    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(cnr_class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_FALSE(loader1.isLibraryLoaded());
     return;
-  } catch (class_loader::ClassLoaderException & e) {
+  } catch (cnr_class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   } catch (...) {
     FAIL() << "Unhandled exception";
@@ -75,21 +75,21 @@ TEST(ClassLoaderSharedPtrTest, correctNonLazyLoadUnload) {
 
 TEST(ClassLoaderSharedPtrTest, correctLazyLoadUnload) {
   try {
-    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
-    class_loader::ClassLoader loader1(LIBRARY_1, true);
-    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(cnr_class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+    cnr_class_loader::ClassLoader loader1(LIBRARY_1, true);
+    ASSERT_FALSE(cnr_class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
     {
       std::shared_ptr<Base> obj = loader1.createSharedInstance<Base>("Cat");
-      ASSERT_TRUE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+      ASSERT_TRUE(cnr_class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
       ASSERT_TRUE(loader1.isLibraryLoaded());
     }
 
     // The library will unload automatically when the only plugin object left is destroyed
-    ASSERT_FALSE(class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
+    ASSERT_FALSE(cnr_class_loader::impl::isLibraryLoadedByAnybody(LIBRARY_1));
     return;
-  } catch (class_loader::ClassLoaderException & e) {
+  } catch (cnr_class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   } catch (...) {
     FAIL() << "Unhandled exception";
@@ -97,7 +97,7 @@ TEST(ClassLoaderSharedPtrTest, correctLazyLoadUnload) {
 }
 
 TEST(ClassLoaderSharedPtrTest, nonExistentPlugin) {
-  class_loader::ClassLoader loader1(LIBRARY_1, false);
+  cnr_class_loader::ClassLoader loader1(LIBRARY_1, false);
 
   try {
     std::shared_ptr<Base> obj = loader1.createSharedInstance<Base>("Bear");
@@ -106,7 +106,7 @@ TEST(ClassLoaderSharedPtrTest, nonExistentPlugin) {
     }
 
     obj->saySomething();
-  } catch (const class_loader::CreateClassException &) {
+  } catch (const cnr_class_loader::CreateClassException &) {
     SUCCEED();
     return;
   } catch (...) {
@@ -118,8 +118,8 @@ TEST(ClassLoaderSharedPtrTest, nonExistentPlugin) {
 
 TEST(ClassLoaderSharedPtrTest, nonExistentLibrary) {
   try {
-    class_loader::ClassLoader loader1("libDoesNotExist.so", false);
-  } catch (const class_loader::LibraryLoadException &) {
+    cnr_class_loader::ClassLoader loader1("libDoesNotExist.so", false);
+  } catch (const cnr_class_loader::LibraryLoadException &) {
     SUCCEED();
     return;
   } catch (...) {
@@ -135,7 +135,7 @@ class InvalidBase
 
 TEST(ClassLoaderSharedPtrTest, invalidBase) {
   try {
-    class_loader::ClassLoader loader1(LIBRARY_1, false);
+    cnr_class_loader::ClassLoader loader1(LIBRARY_1, false);
     if (loader1.isClassAvailable<InvalidBase>("Cat")) {
       FAIL() << "Cat should not be available for InvalidBase";
     } else if (loader1.isClassAvailable<Base>("Cat")) {
@@ -144,7 +144,7 @@ TEST(ClassLoaderSharedPtrTest, invalidBase) {
     } else {
       FAIL() << "Class not available for correct base class.";
     }
-  } catch (const class_loader::LibraryLoadException &) {
+  } catch (const cnr_class_loader::LibraryLoadException &) {
     FAIL() << "Unexpected exception";
   } catch (...) {
     FAIL() << "Unexpected and unknown exception caught.\n";
@@ -156,7 +156,7 @@ void wait(int seconds)
   std::this_thread::sleep_for(std::chrono::seconds(seconds));
 }
 
-void run(class_loader::ClassLoader * loader)
+void run(cnr_class_loader::ClassLoader * loader)
 {
   std::vector<std::string> classes = loader->getAvailableClasses<Base>();
   for (auto & class_ : classes) {
@@ -165,7 +165,7 @@ void run(class_loader::ClassLoader * loader)
 }
 
 TEST(ClassLoaderSharedPtrTest, threadSafety) {
-  class_loader::ClassLoader loader1(LIBRARY_1);
+  cnr_class_loader::ClassLoader loader1(LIBRARY_1);
   ASSERT_TRUE(loader1.isLibraryLoaded());
 
   // Note: Hard to test thread safety to make sure memory isn't corrupted.
@@ -188,7 +188,7 @@ TEST(ClassLoaderSharedPtrTest, threadSafety) {
 
     loader1.unloadLibrary();
     ASSERT_FALSE(loader1.isLibraryLoaded());
-  } catch (const class_loader::ClassLoaderException &) {
+  } catch (const cnr_class_loader::ClassLoaderException &) {
     FAIL() << "Unexpected ClassLoaderException.";
   } catch (...) {
     FAIL() << "Unknown exception.";
@@ -197,7 +197,7 @@ TEST(ClassLoaderSharedPtrTest, threadSafety) {
 
 TEST(ClassLoaderSharedPtrTest, loadRefCountingNonLazy) {
   try {
-    class_loader::ClassLoader loader1(LIBRARY_1, false);
+    cnr_class_loader::ClassLoader loader1(LIBRARY_1, false);
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
     loader1.loadLibrary();
@@ -220,7 +220,7 @@ TEST(ClassLoaderSharedPtrTest, loadRefCountingNonLazy) {
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
     return;
-  } catch (const class_loader::ClassLoaderException &) {
+  } catch (const cnr_class_loader::ClassLoaderException &) {
     FAIL() << "Unexpected exception.\n";
   } catch (...) {
     FAIL() << "Unknown exception caught.\n";
@@ -231,7 +231,7 @@ TEST(ClassLoaderSharedPtrTest, loadRefCountingNonLazy) {
 
 TEST(ClassLoaderSharedPtrTest, loadRefCountingLazy) {
   try {
-    class_loader::ClassLoader loader1(LIBRARY_1, true);
+    cnr_class_loader::ClassLoader loader1(LIBRARY_1, true);
     ASSERT_FALSE(loader1.isLibraryLoaded());
 
     {
@@ -260,7 +260,7 @@ TEST(ClassLoaderSharedPtrTest, loadRefCountingLazy) {
     ASSERT_TRUE(loader1.isLibraryLoaded());
 
     return;
-  } catch (const class_loader::ClassLoaderException &) {
+  } catch (const cnr_class_loader::ClassLoaderException &) {
     FAIL() << "Unexpected exception.\n";
   } catch (...) {
     FAIL() << "Unknown exception caught.\n";
@@ -272,7 +272,7 @@ TEST(ClassLoaderSharedPtrTest, loadRefCountingLazy) {
 void testMultiClassLoader(bool lazy)
 {
   try {
-    class_loader::MultiLibraryClassLoader loader(lazy);
+    cnr_class_loader::MultiLibraryClassLoader loader(lazy);
     loader.loadLibrary(LIBRARY_1);
     loader.loadLibrary(LIBRARY_2);
     for (int i = 0; i < 2; ++i) {
@@ -280,7 +280,7 @@ void testMultiClassLoader(bool lazy)
       loader.createSharedInstance<Base>("Dog")->saySomething();
       loader.createSharedInstance<Base>("Robot")->saySomething();
     }
-  } catch (class_loader::ClassLoaderException & e) {
+  } catch (cnr_class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 
@@ -300,7 +300,7 @@ TEST(MultiClassLoaderTest, noWarningOnLazyLoad) {
   try {
     std::shared_ptr<Base> cat, dog, rob;
     {
-      class_loader::MultiLibraryClassLoader loader(true);
+      cnr_class_loader::MultiLibraryClassLoader loader(true);
       loader.loadLibrary(LIBRARY_1);
       loader.loadLibrary(LIBRARY_2);
 
@@ -311,7 +311,7 @@ TEST(MultiClassLoaderTest, noWarningOnLazyLoad) {
     cat->saySomething();
     dog->saySomething();
     rob->saySomething();
-  } catch (class_loader::ClassLoaderException & e) {
+  } catch (cnr_class_loader::ClassLoaderException & e) {
     FAIL() << "ClassLoaderException: " << e.what() << "\n";
   }
 

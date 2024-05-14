@@ -41,13 +41,12 @@
 #include <string>
 #include <vector>
 
-#include "console_bridge/console.h"
 
-#include "class_loader/class_loader_core.hpp"
-#include "class_loader/register_macro.hpp"
-#include "class_loader/visibility_control.hpp"
+#include "cnr_class_loader/class_loader_core.hpp"
+#include "cnr_class_loader/register_macro.hpp"
+#include "cnr_class_loader/visibility_control.hpp"
 
-namespace class_loader
+namespace cnr_class_loader
 {
 
 /**
@@ -66,7 +65,7 @@ std::string systemLibrarySuffix();
  * @brief Returns a platform specific version of a basic library name
  *
  * On *nix platforms the library name is prefixed with `lib`.
- * On all platforms the output of class_loader::systemLibrarySuffix() is appended.
+ * On all platforms the output of cnr_class_loader::systemLibrarySuffix() is appended.
  */
 CLASS_LOADER_PUBLIC
 std::string systemLibraryFormat(const std::string & library_name);
@@ -105,7 +104,7 @@ public:
   template<class Base>
   std::vector<std::string> getAvailableClasses()
   {
-    return class_loader::impl::getAvailableClasses<Base>(this);
+    return cnr_class_loader::impl::getAvailableClasses<Base>(this);
   }
 
   /**
@@ -134,12 +133,12 @@ public:
   /**
    * @brief  Generates an instance of loadable classes (i.e. class_loader).
    *
-   * Same as createSharedInstance() except it returns a boost::shared_ptr.
+   * Same as createSharedInstance() except it returns a std::shared_ptr.
    */
   template<class Base>
-  boost::shared_ptr<Base> createInstance(const std::string & derived_class_name)
+  std::shared_ptr<Base> createInstance(const std::string & derived_class_name)
   {
-    return boost::shared_ptr<Base>(
+    return std::shared_ptr<Base>(
       createRawInstance<Base>(derived_class_name, true),
       boost::bind(&ClassLoader::onPluginDeletion<Base>, this, boost::placeholders::_1));
   }
@@ -241,7 +240,7 @@ private:
   void onPluginDeletion(Base * obj)
   {
     CONSOLE_BRIDGE_logDebug(
-      "class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n",
+      "cnr_class_loader::ClassLoader: Calling onPluginDeletion() for obj ptr = %p.\n",
       reinterpret_cast<void *>(obj));
     if (nullptr == obj) {
       return;
@@ -255,7 +254,7 @@ private:
         unloadLibraryInternal(false);
       } else {
         CONSOLE_BRIDGE_logWarn(
-          "class_loader::ClassLoader: "
+          "cnr_class_loader::ClassLoader: "
           "Cannot unload library %s even though last shared pointer went out of scope. "
           "This is because createUnmanagedInstance was used within the scope of this process,"
           " perhaps by a different ClassLoader. Library will NOT be closed.",
@@ -287,8 +286,8 @@ private:
       isOnDemandLoadUnloadEnabled())
     {
       CONSOLE_BRIDGE_logInform("%s",
-        "class_loader::ClassLoader: "
-        "An attempt is being made to create a managed plugin instance (i.e. boost::shared_ptr), "
+        "cnr_class_loader::ClassLoader: "
+        "An attempt is being made to create a managed plugin instance (i.e. std::shared_ptr), "
         "however an unmanaged instance was created within this process address space. "
         "This means libraries for the managed instances will not be shutdown automatically on "
         "final plugin destruction if on demand (lazy) loading/unloading mode is used."
@@ -298,7 +297,7 @@ private:
       loadLibrary();
     }
 
-    Base * obj = class_loader::impl::createInstance<Base>(derived_class_name, this);
+    Base * obj = cnr_class_loader::impl::createInstance<Base>(derived_class_name, this);
     assert(obj != nullptr);  // Unreachable assertion if createInstance() throws on failure
 
     if (managed) {
@@ -335,7 +334,7 @@ private:
   static bool has_unmananged_instance_been_created_;
 };
 
-}  // namespace class_loader
+}  // namespace cnr_class_loader
 
 
 #endif  // CLASS_LOADER__CLASS_LOADER_HPP_

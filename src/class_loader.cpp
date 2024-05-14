@@ -27,13 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "class_loader/class_loader.hpp"
+#include "cnr_class_loader/class_loader.hpp"
 
 #include <string>
 
 #include "Poco/SharedLibrary.h"
 
-namespace class_loader
+namespace cnr_class_loader
 {
 
 bool ClassLoader::has_unmananged_instance_been_created_ = false;
@@ -87,19 +87,19 @@ ClassLoader::~ClassLoader()
 
 bool ClassLoader::isLibraryLoaded()
 {
-  return class_loader::impl::isLibraryLoaded(getLibraryPath(), this);
+  return cnr_class_loader::impl::isLibraryLoaded(getLibraryPath(), this);
 }
 
 bool ClassLoader::isLibraryLoadedByAnyClassloader()
 {
-  return class_loader::impl::isLibraryLoadedByAnybody(getLibraryPath());
+  return cnr_class_loader::impl::isLibraryLoadedByAnybody(getLibraryPath());
 }
 
 void ClassLoader::loadLibrary()
 {
   boost::recursive_mutex::scoped_lock lock(load_ref_count_mutex_);
   load_ref_count_ = load_ref_count_ + 1;
-  class_loader::impl::loadLibrary(getLibraryPath(), this);
+  cnr_class_loader::impl::loadLibrary(getLibraryPath(), this);
 }
 
 int ClassLoader::unloadLibrary()
@@ -124,7 +124,7 @@ int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
   } else {
     load_ref_count_ = load_ref_count_ - 1;
     if (0 == load_ref_count_) {
-      class_loader::impl::unloadLibrary(getLibraryPath(), this);
+      cnr_class_loader::impl::unloadLibrary(getLibraryPath(), this);
     } else if (load_ref_count_ < 0) {
       load_ref_count_ = 0;
     }
@@ -132,4 +132,4 @@ int ClassLoader::unloadLibraryInternal(bool lock_plugin_ref_count)
   return load_ref_count_;
 }
 
-}  // namespace class_loader
+}  // namespace cnr_class_loader
