@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CLASS_LOADER__CLASS_LOADER_CORE_HPP_
-#define CLASS_LOADER__CLASS_LOADER_CORE_HPP_
+#ifndef CNR_CLASS_LOADER__CLASS_LOADER_CORE_HPP_
+#define CNR_CLASS_LOADER__CLASS_LOADER_CORE_HPP_
 
 #include <boost/thread/recursive_mutex.hpp>
 #include <cstddef>

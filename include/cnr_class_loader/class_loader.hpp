@@ -29,8 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef CLASS_LOADER__CLASS_LOADER_HPP_
-#define CLASS_LOADER__CLASS_LOADER_HPP_
+#ifndef CNR_CLASS_LOADER__CLASS_LOADER_HPP_
+#define CNR_CLASS_LOADER__CLASS_LOADER_HPP_
 
 #include <boost/bind/bind.hpp>
 #include <boost/shared_ptr.hpp>
