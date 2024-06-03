@@ -19,10 +19,14 @@ FORK    The cnr_class_loader package is a ROS-independent package for loading pl
 
   <buildtool_depend version_gte="0.5.68">cmake</buildtool_depend>
 
-  <build_depend version_gte="0.3.3">cmake_modules</build_depend>
+  <build_depend version_gte="0.3.3">cmake_modules</build_depend> 
 
   <depend>libboost-thread-dev</depend>
   <depend>libboost-system-dev</depend>
   <depend>libboost-filesystem-dev</depend>
   <depend>libpoco-dev</depend>
+
+  <export>                               
+   <build_type>cmake</build_type> 
+  </export> 
 </package>
