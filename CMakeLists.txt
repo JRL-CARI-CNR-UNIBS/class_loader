@@ -68,11 +68,17 @@ write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Conf
   VERSION 0.0.1
   COMPATIBILITY AnyNewerVersion)
 
-install(FILES
-  ${CMAKE_SOURCE_DIR}/cmake_config/${PROJECT_NAME}Config.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
-  DESTINATION "share/${PROJECT_NAME}/cmake")
+configure_package_config_file(
+  ${CMAKE_SOURCE_DIR}/cmake_config/${PROJECT_NAME}Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  INSTALL_DESTINATION share/${PROJECT_NAME}/cmake
+)
 
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+  DESTINATION "share/${PROJECT_NAME}/cmake"
+)
 
 # make uninstall
 add_custom_target("uninstall" COMMENT "Uninstall installed files")
