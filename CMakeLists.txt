@@ -27,6 +27,8 @@ else()
   add_library(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SRCS})
 endif()
 
+add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS ${PROJECT_NAME})
+
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
@@ -43,6 +45,8 @@ if(WIN32)
   # which is appropriate when building the dll but not consuming it.
   target_compile_definitions(${PROJECT_NAME} PRIVATE "CLASS_LOADER_BUILDING_DLL")
 endif()
+
+
 
 install(DIRECTORY include/${PROJECT_NAME}
   DESTINATION include)
